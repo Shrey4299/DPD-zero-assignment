@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import RegisterUser,SpamList, BlockedList, WhoViewedList, Comment
+from .models import RegisterUser
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -22,30 +22,3 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return instance
 
 
-class SpamListSerializer(serializers.ModelSerializer):
-    spammed_user = CustomUserSerializer(read_only=True)
-
-    class Meta:
-        model = SpamList
-        fields = ('id', 'user', 'spammed_user', 'created_at')
-
-
-class BlockedListSerializer(serializers.ModelSerializer):
-    blocked_user = CustomUserSerializer(read_only=True)
-
-    class Meta:
-        model = BlockedList
-        fields = ('id', 'user', 'blocked_user', 'created_at')
-
-class WhoViewedListSerializer(serializers.ModelSerializer):
-    viewed_user = CustomUserSerializer(read_only=True)
-
-    class Meta:
-        model = WhoViewedList
-        fields = ('id', 'user', 'viewed_user', 'created_at')
-
-
-class CommentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Comment
-        fields = '__all__'

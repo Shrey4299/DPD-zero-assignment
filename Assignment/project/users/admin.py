@@ -2,9 +2,8 @@ from django.contrib import admin
 from .models import RegisterUser
 from django.contrib.auth.admin import UserAdmin
 from django.forms import TextInput, Textarea
-from django import forms
 from django.db import models
-from .models import SpamList, BlockedList, WhoViewedList, Comment
+
 
 
 class UserAdminConfig(UserAdmin):
@@ -31,7 +30,4 @@ class UserAdminConfig(UserAdmin):
 
 
 admin.site.register(RegisterUser, UserAdminConfig)
-admin.site.register(SpamList)
-admin.site.register(BlockedList)
-admin.site.register(WhoViewedList)
-admin.site.register(Comment)
+
