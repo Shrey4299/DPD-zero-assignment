@@ -23,34 +23,19 @@ class CustomUserCreate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class GetUserById(APIView):
-    def get(self, request, user_id):
-        try:
-            user = RegisterUser.objects.get(id=user_id)
-            serializer = CustomUserSerializer(user)
-
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except RegisterUser.DoesNotExist:
-            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-
-    def post(self, request, user_id):
-        try:
-            user = RegisterUser.objects.get(phone_number=request.data.get("phone_number"))
-            user.name = request.data.get("name")
-            user.save()
-            return Response({"message": "name field updated successfully."}, status=status.HTTP_200_OK)
-        except RegisterUser.DoesNotExist:
-            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 class LoginView(APIView):
-    def post(self, request):
-        email = request.data['email']
-        password = request.data['password']
+    permission_classes = [AllowAny]
 
-        user = RegisterUser.objects.filter(email=email).first()
+    def post(self, request):
+        username = request.data.get('name')
+        password = request.data.get('password')
+
+        # Check if both username and password are provided
+        if not (username and password):
+            raise AuthenticationFailed('Both username and password are required.')
+
+        user = RegisterUser.objects.filter(name=username).first()
 
         if user is None:
             raise AuthenticationFailed('User not found!')
@@ -58,25 +43,29 @@ class LoginView(APIView):
         if not user.check_password(password):
             raise AuthenticationFailed('Incorrect password!')
 
+        # Generate JWT token
         payload = {
             'id': user.id,
             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
             'iat': datetime.datetime.utcnow()
         }
-        #
         token = jwt.encode(payload, 'secret', algorithm='HS256')
-        #
-        response = Response()
 
-        response.set_cookie(key='jwt', value=token, httponly=False)
-        response.data = {
-            'jwt': token,
-            'id': user.id,
-        }
+        # Set the token in response
+        response = Response({
+            'status': 'success',
+            'message': 'Access token generated successfully.',
+            'data': {
+                'access_token': token,
+                'expires_in': 3600
+            }
+        })
+
         return response
 
 
 class UserView(APIView):
+    permission_classes = [AllowAny]
     def get(self, request, format='json'):
         token = request.data.get('jwt')  # Get the token from the request body
 
