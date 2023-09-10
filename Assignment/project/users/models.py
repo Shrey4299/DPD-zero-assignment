@@ -3,10 +3,9 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
-
 class CustomAccountManager(BaseUserManager):
 
-    def create_superuser(self, email, username, phone_number, password, **other_fields):
+    def create_superuser(self, email, username, password, **other_fields):
         other_fields.setdefault('is_staff', True)
         other_fields.setdefault('is_superuser', True)
         other_fields.setdefault('is_active', True)
@@ -16,16 +15,14 @@ class CustomAccountManager(BaseUserManager):
         if other_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must be assigned to is_superuser=True.')
 
-        return self.create_user(email, username, phone_number, password, **other_fields)
+        return self.create_user(email, username, password, **other_fields)
 
-    def create_user(self, email=None, username=None, phone_number=None, password=None, **other_fields):
+    def create_user(self, email=None, username=None, password=None, **other_fields):
         if not username:
             raise ValueError(_('You must provide a username'))
-        if not phone_number:
-            raise ValueError(_('You must provide a phone number'))
 
         email = self.normalize_email(email) if email else None
-        user = self.model(email=email, username=username, phone_number=phone_number, **other_fields)
+        user = self.model(email=email, username=username, **other_fields)
         user.set_password(password)
         user.save()
         return user
@@ -33,9 +30,8 @@ class CustomAccountManager(BaseUserManager):
 
 class RegisterUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, blank=True, null=True)
-    username = models.CharField(max_length=150)
+    username = models.CharField(max_length=150, unique=True)
     full_name = models.CharField(max_length=150, blank=True, null=True)
-    phone_number = models.IntegerField()
     start_date = models.DateTimeField(default=timezone.now)
     gender = models.CharField(max_length=10)
     age = models.IntegerField(blank=True, null=True)
@@ -43,13 +39,10 @@ class RegisterUser(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
 
-    spam = models.BooleanField(default=False)
-    premium = models.BooleanField(default=False)
-
     objects = CustomAccountManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'phone_number']
+    REQUIRED_FIELDS = ['username']
 
     def __str__(self):
         return self.username

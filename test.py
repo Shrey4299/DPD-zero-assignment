@@ -1,9 +1,5 @@
 import requests
 import random
-from django.test import TestCase
-from django.urls import reverse
-from rest_framework import status
-from rest_framework.test import APIClient
 
 user_name = "test_user_{0}".format(random.randint(1, 1e6))
 key_name = "test_key_{0}".format(random.randint(1, 1e6))
@@ -11,11 +7,11 @@ key_name = "test_key_{0}".format(random.randint(1, 1e6))
 url = "http://localhost:8000"
 
 def test_register_user():
-    endpoint = "/api/register"
+    endpoint = "/api/register/"
     data = {
         "username": user_name,
-        "email": "{0}@example.com".format(user_name),
-        "password": "test_password",
+        "email": user_name + "@gmail.com",
+        "password": "Sonu619@",
         "full_name": "Test User",
         "age": 30,
         "gender": "male"
@@ -26,9 +22,9 @@ def test_register_user():
     assert response.json()["message"] == "User successfully registered!"
 
 def test_generate_token():
-    endpoint = "/api/token"
+    endpoint = "/api/token/"
     data = {
-        "username": user_name,
+        "email": user_name + "@gmail.com",
         "password": "test_password"
     }
     response = requests.post(url + endpoint, json=data)
@@ -38,7 +34,7 @@ def test_generate_token():
     return {"Authorization": "Bearer {0}".format(response.json()['data']['access_token'])}
 
 def test_store_data():
-    endpoint = "/api/data"
+    endpoint = "/api/data/"
     data = {
         "key": key_name,
         "value": "test_value"
@@ -49,7 +45,7 @@ def test_store_data():
     assert response.json()["message"] == "Data stored successfully."
 
 def test_retrieve_data():
-    endpoint = "/api/data/{0}".format(key_name)
+    endpoint = "/api/data/{0}/".format(key_name)
     response = requests.get(url + endpoint, headers=test_generate_token())
     print("response", response.request.url, response.request.method, response.status_code, response.text)
     assert response.status_code == 200
@@ -57,7 +53,7 @@ def test_retrieve_data():
     assert response.json()["data"]["value"] == "test_value"
 
 def test_update_data():
-    endpoint = "/api/data/{0}".format(key_name)
+    endpoint = "/api/data/{0}/".format(key_name)
     data = {
         "value": "new_test_value"
     }
@@ -67,15 +63,15 @@ def test_update_data():
     assert response.json()["message"] == "Data updated successfully."
 
 def test_delete_data():
-    endpoint = "/api/data/{0}".format(key_name)
+    endpoint = "/api/data/{0}/ ".format(key_name)
     response = requests.delete(url + endpoint, headers=test_generate_token())
     print("response", response.request.url, response.request.method, response.status_code, response.text)
     assert response.status_code == 200
     assert response.json()["message"] == "Data deleted successfully."
 
 def test_all():
-    test_register_user()
-    test_generate_token()
+    # test_register_user()
+    # test_generate_token()
     test_store_data()
     test_retrieve_data()
     test_update_data()
