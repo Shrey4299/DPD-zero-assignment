@@ -6,7 +6,7 @@ This project is built on Django, a high-level Python web framework. It provides 
 
 ## 🗄️ Database Schema
 
-The application uses a MySQL database named `Users` with two tables:
+The application uses a MySQL database named `Users` and `Data` with two tables:
 
 ### Table: `Users`
 
@@ -20,7 +20,7 @@ This table stores user information.
 - `age`: Integer
 - `gender`: String(10), Not Null
 
-### Table: `key_value_data`
+### Table: `Data`
 
 This table stores key-value pairs.
 
